@@ -1,7 +1,3 @@
-![Justin's Stats](https://github-readme-stats.vercel.app/api?username=krehel&theme=tokyonight&show_icons=true)
-
-![Metrics](https://metrics.lecoq.io/krehel?template=classic&isocalendar=1&base=header%2C%20activity%2C%20community%2C%20repositories%2C%20metadata&base.indepth=false&base.hireable=false&base.skip=false&isocalendar=false&isocalendar.duration=full-year&config.timezone=America%2FNew_York)
-
 # Editors
 ![Visual Studio Code](https://img.shields.io/badge/Visual_Studio_Code-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white)
 ![Emacs](https://img.shields.io/badge/Emacs-7F5AB6?style=for-the-badge&logo=gnuemacs&logoColor=white)
