@@ -1,3 +1,5 @@
+![Justin's GitHub stats](https://github-readme-stats.vercel.app/api?username=krehel&theme=dracula&show_icons=true&include_all_commits=true)
+
 # Editors
 ![Visual Studio Code](https://img.shields.io/badge/Visual_Studio_Code-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white)
 ![Emacs](https://img.shields.io/badge/Emacs-7F5AB6?style=for-the-badge&logo=gnuemacs&logoColor=white)
