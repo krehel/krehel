@@ -1,5 +1,3 @@
-![Justin's GitHub stats](https://github-readme-stats.vercel.app/api?username=krehel&theme=nightowl&show_icons=true&include_all_commits=true)
-
 # Editors
 ![Rubymine](https://img.shields.io/badge/rubymine-fc183a?style=for-the-badge&logo=rubymine&logoColor=white)
 ![Visual Studio Code](https://img.shields.io/badge/Visual_Studio_Code-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white)
