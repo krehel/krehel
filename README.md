@@ -3,7 +3,7 @@
 ![Zed](https://img.shields.io/badge/Zed-black?style=for-the-badge&logo=zedindustries&logoColor=white)
 
 # OS
-![macOS](http://img.shields.io/badge/mac%20OS-333333?style=for-the-badge&logo=apple&logoColor=white)
+![macOS](http://img.shields.io/badge/macOS-333333?style=for-the-badge&logo=apple&logoColor=white)
 ![Fedora](http://img.shields.io/badge/Fedora-51A2DA?style=for-the-badge&logo=fedora&logoColor=white)
 ![Gentoo](http://img.shields.io/badge/Gentoo-54487A?style=for-the-badge&logo=gentoo&logoColor=white)
 
