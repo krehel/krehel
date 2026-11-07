@@ -57,7 +57,6 @@ THEMES = {
   },
 }.freeze
 
-DAYS_IN_A_WEEK = 7
 
 def count(query)
   arguments = ["gh", "api", "--method", "GET", "search/issues", "-f", "q=#{query}", "-f", "per_page=1"]
@@ -276,9 +275,9 @@ def portrait_cards(history, theme, colours)
   ]
 end
 
-# Each portrait is around 600 KB, so refreshing it only on the first weekly run
-# of each month keeps the repository small.
-portrait_due = ARGV.include?("--portrait") || Date.today.mday <= DAYS_IN_A_WEEK
+# Each portrait is around 600 KB, so refreshing it only on the first of each
+# month keeps the repository small.
+portrait_due = ARGV.include?("--portrait") || Date.today.day == 1
 
 numbers = stats
 cards = THEMES.flat_map do |theme, colours|
