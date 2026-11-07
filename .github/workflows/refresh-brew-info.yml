@@ -5,14 +5,22 @@ on:
     - cron: "23 6 * * 1"
   workflow_dispatch:
 
-permissions:
-  contents: write
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 
 jobs:
   refresh:
+    name: Refresh stats
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # pushes the regenerated cards to main
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true # the final step runs git push
       - run: bin/render-brew-info
         env:
           GH_TOKEN: ${{ github.token }}
