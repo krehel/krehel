@@ -1,0 +1,25 @@
+name: Refresh brew info
+
+on:
+  schedule:
+    - cron: "23 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: bin/render-brew-info
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Commit changed stats
+        run: |
+          git diff --quiet -- assets && exit
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --message="Refresh brew info stats" -- assets
+          git push

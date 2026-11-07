@@ -1,0 +1,291 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Renders the terminal cards in assets/ from live GitHub search counts.
+#
+# SVGs loaded through <img> can't fetch fonts, so assets/fonts holds Basic Latin
+# subsets of Lilex to embed, made with:
+#   pyftsubset LilexNerdFontMono-Regular.ttf --flavor=woff2 --layout-features='' \
+#     --no-hinting --desubroutinize --unicodes='U+20-7E,U+276F'
+
+require "date"
+require "json"
+require_relative "../lib/portrait"
+
+ROOT = File.expand_path("..", __dir__)
+LOGIN = "krehel"
+INFO_COMMAND = "brew info #{LOGIN}"
+ANALYTICS_COMMAND = "brew analytics"
+FIRST_MERGED_HOMEBREW_PR = "2020.11"
+FIRST_REVIEW_YEAR = 2023
+MERGED_PRS = "org:Homebrew author:#{LOGIN} is:pr is:merged"
+REVIEWED_PRS = "org:Homebrew reviewed-by:#{LOGIN} is:pr"
+MERGED_CASK_PRS = "repo:Homebrew/homebrew-cask is:pr is:merged"
+RECENT_DAYS = [30, 90, 365].freeze
+REPOSITORIES = { "cask" => "homebrew-cask", "core" => "homebrew-core", "brew" => "brew" }.freeze
+SEARCHES_ALLOWED_PER_MINUTE = 30
+SECONDS_BETWEEN_SEARCHES = 60.0 / SEARCHES_ALLOWED_PER_MINUTE
+
+WIDTH = 580
+PADDING = 24
+TITLE_BAR_HEIGHT = 40
+ROW_HEIGHT = 22
+FONT_SIZE = 15
+CHARACTER_WIDTH = FONT_SIZE * 0.6
+MAX_COLUMNS = ((WIDTH - (2 * PADDING)) / CHARACTER_WIDTH).floor
+CORNER_RADIUS = 10
+BAR_MAX_COLUMNS = 30
+BAR_THICKNESS = 12
+BAR_DROP_BELOW_BASELINE = 1
+BAR_END_RADIUS = 4
+
+TYPING_START = 0.3
+TYPING_DURATION = 0.8
+OUTPUT_START = TYPING_START + TYPING_DURATION + 0.15
+OUTPUT_ROW_DELAY = 0.05
+
+THEMES = {
+  "dark"  => {
+    window: "#1a1b26", title_bar: "#16161e", border: "#292e42", text: "#c0caf5", strong: "#ffffff",
+    muted: "#8088b0", blue: "#7aa2f7", bar: "#6690ee", green: "#9ece6a", yellow: "#e0af68", magenta: "#bb9af7",
+    rings: %w[#c8601a #f0962a #ffc966 #ffe9bd], ink: "#f0f6fc", ink_muted: "#9198a1"
+  },
+  "light" => {
+    window: "#e9ebf2", title_bar: "#d8dbe6", border: "#c8ccdb", text: "#343b58", strong: "#1a1b26",
+    muted: "#525980", blue: "#2558b3", bar: "#2558b3", green: "#3f6126", yellow: "#845600", magenta: "#7338c9",
+    rings: %w[#dd9526 #c9761a #a4530a #6e3203], ink: "#1d1d1f", ink_muted: "#6e6e73"
+  },
+}.freeze
+
+DAYS_IN_A_WEEK = 7
+
+def count(query)
+  arguments = ["gh", "api", "--method", "GET", "search/issues", "-f", "q=#{query}", "-f", "per_page=1"]
+  result = JSON.parse(IO.popen(arguments, &:read))
+  abort "Search failed for #{query}: #{result}" unless result.key?("total_count")
+  abort "Incomplete search results for: #{query}" if result.fetch("incomplete_results")
+
+  sleep SECONDS_BETWEEN_SEARCHES
+  result.fetch("total_count")
+end
+
+def review_history(current_year)
+  (FIRST_REVIEW_YEAR..current_year).map do |year|
+    opened = "created:#{year}-01-01..#{year}-12-31"
+    merged_cask_prs = count("#{MERGED_CASK_PRS} #{opened}")
+    reviewed_cask_prs = count("#{MERGED_CASK_PRS} #{opened} reviewed-by:#{LOGIN}")
+    {
+      year:     year,
+      reviewed: count("#{REVIEWED_PRS} #{opened}"),
+      share:    merged_cask_prs.zero? ? 0 : (100.0 * reviewed_cask_prs / merged_cask_prs).round,
+    }
+  end
+end
+
+def stats
+  today = Date.today
+  {
+    recent:   RECENT_DAYS.map { |days| [count("#{MERGED_PRS} merged:>=#{today - days}"), "#{days} days"] },
+    merged:   REPOSITORIES.map { |label, name| [count("repo:Homebrew/#{name} author:#{LOGIN} is:pr is:merged"), label] },
+    reviewed: [[count(REVIEWED_PRS), "pull requests"]],
+    history:  review_history(today.year),
+  }
+end
+
+def delimited(number)
+  number.to_s.reverse.scan(/\d{1,3}/).join(",").reverse
+end
+
+def heading(text)
+  [["==> ", :blue], [text, :strong]]
+end
+
+def analytics(label, counts)
+  segments = [["#{label}: ", nil]]
+  counts.each_with_index do |(number, description), index|
+    segments << [", ", nil] unless index.zero?
+    segments << [delimited(number), :yellow] << [" (#{description})", nil]
+  end
+  segments
+end
+
+def dependencies(names)
+  segments = [["Required: ", nil]]
+  names.each_with_index do |name, index|
+    segments << [", ", nil] unless index.zero?
+    segments << ["#{name} ", nil] << ["✔", :check]
+  end
+  segments
+end
+
+def info_rows(stats)
+  [
+    heading("#{LOGIN}: stable #{FIRST_MERGED_HOMEBREW_PR} (bottled), HEAD"),
+    [["Lead Maintainer of Homebrew, focused on casks and Linux", nil]],
+    [["https://github.com/#{LOGIN}", :blue]],
+    [["From: ", nil], ["https://github.com/Homebrew/homebrew-cask", :blue]],
+    [["License: ", nil], ["MIT", :magenta]],
+    heading("Dependencies"),
+    dependencies(%w[ruby bash elixir go python]),
+    heading("Caveats"),
+    [["Zap stanzas will be checked. Thoroughly.", nil]],
+    heading("Analytics"),
+    analytics("merged", stats.fetch(:recent)),
+    analytics("merged-all-time", stats.fetch(:merged)),
+    analytics("reviewed-all-time", stats.fetch(:reviewed)),
+  ]
+end
+
+def chart_row(entry, busiest_year, current_year)
+  year, reviewed, share = entry.fetch_values(:year, :reviewed, :share)
+  bar_columns = BAR_MAX_COLUMNS * reviewed.fdiv(busiest_year)
+  row = [
+    ["#{year} ", nil],
+    [" " * bar_columns.ceil, :bar, bar_columns * CHARACTER_WIDTH],
+    [" #{delimited(reviewed)}", nil],
+    [" (#{share}%)", :muted],
+  ]
+  row << [" so far", :muted] if year == current_year
+  row
+end
+
+def analytics_rows(history)
+  busiest_year = history.map { |entry| entry.fetch(:reviewed) }.max
+  current_year = history.last.fetch(:year)
+  [
+    heading("Pull requests reviewed (% of merged cask PRs)"),
+    *history.map { |entry| chart_row(entry, busiest_year, current_year) },
+    [["Counted by the year each pull request was opened.", :muted]],
+  ]
+end
+
+def check_mark(x, baseline)
+  %(<path class="check" d="M#{x + 1.5} #{baseline - 4.5}l3 3.5 5.5-8"/>)
+end
+
+def bar(x, baseline, width)
+  top = baseline - BAR_THICKNESS + BAR_DROP_BELOW_BASELINE
+  radius = BAR_END_RADIUS
+  straight = [width - radius, 0].max.round(1)
+  corner = "a#{radius} #{radius} 0 0 1"
+  %(<path class="bar" d="M#{x} #{top}h#{straight}#{corner} #{radius} #{radius}) +
+    %(v#{BAR_THICKNESS - (2 * radius)}#{corner}-#{radius} #{radius}h-#{straight}z"/>)
+end
+
+def render_segments(segments, baseline)
+  column = 0
+  elements = segments.map do |text, style, bar_width|
+    start = PADDING + (column * CHARACTER_WIDTH)
+    column += text.length
+    next check_mark(start, baseline) if style == :check
+    next bar(start, baseline, bar_width) if style == :bar
+
+    content = text.lstrip
+    x = start + ((text.length - content.length) * CHARACTER_WIDTH)
+    %(<text x="#{x}" y="#{baseline}" class="#{style}">#{content.encode(xml: :text)}</text>)
+  end
+  abort "Row is wider than #{MAX_COLUMNS} columns: #{segments.map(&:first).join}" if column > MAX_COLUMNS
+
+  elements.join
+end
+
+def baseline(row)
+  TITLE_BAR_HEIGHT + PADDING + (row * ROW_HEIGHT)
+end
+
+def font_face(style, weight)
+  font = File.binread(File.join(ROOT, "assets/fonts/lilex-#{style}.woff2"))
+  %(@font-face{font-family:Lilex;font-weight:#{weight};src:url(data:font/woff2;base64,#{[font].pack("m0")}) format("woff2")})
+end
+
+def stylesheet(command, colours)
+  typed_columns = command.length + 1
+  <<~CSS.delete("\n")
+    #{font_face("Regular", 400)}
+    #{font_face("Bold", 700)}
+    @keyframes appear{from{opacity:0}}
+    @keyframes type{from{transform:none}}
+    @keyframes blink{50%{opacity:0}}
+    @keyframes grow{from{transform:scaleX(0)}}
+    svg{font:#{FONT_SIZE}px Lilex,ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-variant-ligatures:none;fill:#{colours.fetch(:text)}}
+    .row{animation:appear 1ms var(--delay) backwards}
+    .cover{fill:#{colours.fetch(:window)};transform:translateX(#{typed_columns * CHARACTER_WIDTH}px);
+    animation:type #{TYPING_DURATION}s steps(#{typed_columns}) #{TYPING_START}s backwards}
+    .cursor{animation:blink 1.1s steps(1) 4}
+    .check{fill:none;stroke:#{colours.fetch(:green)};stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .bar{fill:#{colours.fetch(:bar)};transform-box:fill-box;transform-origin:0 50%;
+    animation:grow .5s ease-out var(--delay) backwards}
+    .strong{font-weight:700;fill:#{colours.fetch(:strong)}}
+    .blue{fill:#{colours.fetch(:blue)}}
+    .green{fill:#{colours.fetch(:green)}}
+    .yellow{fill:#{colours.fetch(:yellow)}}
+    .magenta{fill:#{colours.fetch(:magenta)}}
+    .muted{fill:#{colours.fetch(:muted)}}
+    @media (prefers-reduced-motion:reduce){*{animation:none!important}}
+  CSS
+end
+
+def row_group(markup, index)
+  delay = (OUTPUT_START + (index * OUTPUT_ROW_DELAY)).round(2)
+  %(<g class="row" style="--delay:#{delay}s">#{markup}</g>)
+end
+
+def render_window(command, rows, colours, cursor: false)
+  last_row = cursor ? rows.length + 1 : rows.length
+  height = baseline(last_row) + ROW_HEIGHT
+  command_x = PADDING + (2 * CHARACTER_WIDTH)
+  prompt_top = baseline(0) - ROW_HEIGHT + 5
+
+  output = rows.each_with_index.map do |segments, index|
+    row_group(render_segments(segments, baseline(index + 1)), index)
+  end
+  if cursor
+    output << row_group(
+      render_segments([["❯ ", :green]], baseline(last_row)) +
+        %(<rect class="cursor" x="#{command_x}" y="#{baseline(last_row) - 14}" width="#{CHARACTER_WIDTH}" height="18" fill="#{colours.fetch(:text)}"/>),
+      rows.length,
+    )
+  end
+
+  <<~SVG
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 #{WIDTH} #{height}" width="#{WIDTH}" height="#{height}" role="img">
+    <title>#{command}</title>
+    <style>#{stylesheet(command, colours)}</style>
+    <clipPath id="window"><rect width="#{WIDTH}" height="#{height}" rx="#{CORNER_RADIUS}"/></clipPath>
+    <g clip-path="url(#window)">
+    <rect width="#{WIDTH}" height="#{height}" fill="#{colours.fetch(:window)}"/>
+    <rect width="#{WIDTH}" height="#{TITLE_BAR_HEIGHT}" fill="#{colours.fetch(:title_bar)}"/>
+    <circle cx="20" cy="20" r="6" fill="#ff5f57"/><circle cx="40" cy="20" r="6" fill="#febc2e"/><circle cx="60" cy="20" r="6" fill="#28c840"/>
+    <text x="#{WIDTH / 2}" y="25" text-anchor="middle" class="muted">#{command}</text>
+    #{render_segments([["❯ ", :green], [command, nil]], baseline(0))}
+    <rect class="cover" x="#{command_x}" y="#{prompt_top}" width="#{(command.length + 1) * CHARACTER_WIDTH}" height="#{ROW_HEIGHT}"/>
+    #{output.join("\n")}
+    </g>
+    <rect x=".5" y=".5" width="#{WIDTH - 1}" height="#{height - 1}" rx="#{CORNER_RADIUS}" fill="none" stroke="#{colours.fetch(:border)}"/>
+    </svg>
+  SVG
+end
+
+def portrait_cards(history, theme, colours)
+  yearly_counts = history.map { |entry| entry.fetch(:reviewed) }
+  number = delimited(yearly_counts.sum)
+  [
+    ["portrait-#{theme}", Portrait.svg(yearly_counts, number, colours, animated: true)],
+    ["portrait-still-#{theme}", Portrait.svg(yearly_counts, number, colours, animated: false)],
+  ]
+end
+
+# Each portrait is around 600 KB, so refreshing it only on the first weekly run
+# of each month keeps the repository small.
+portrait_due = ARGV.include?("--portrait") || Date.today.mday <= DAYS_IN_A_WEEK
+
+numbers = stats
+cards = THEMES.flat_map do |theme, colours|
+  [
+    ["brew-info-#{theme}", render_window(INFO_COMMAND, info_rows(numbers), colours, cursor: true)],
+    ["brew-analytics-#{theme}", render_window(ANALYTICS_COMMAND, analytics_rows(numbers.fetch(:history)), colours)],
+    *(portrait_due ? portrait_cards(numbers.fetch(:history), theme, colours) : []),
+  ]
+end
+cards.each { |name, svg| File.write(File.join(ROOT, "assets/#{name}.svg"), svg) }
