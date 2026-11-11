@@ -10,10 +10,10 @@
 <text x="24.0" y="64" class="green">❯ </text><text x="42.0" y="64" class="">brew analytics</text>
 <rect class="cover" x="42.0" y="47" width="135.0" height="22"/>
 <g class="row" style="--delay:1.25s"><text x="24.0" y="86" class="blue">==&gt; </text><text x="60.0" y="86" class="strong">Pull requests reviewed (% of merged cask PRs)</text></g>
-<g class="row" style="--delay:1.3s"><text x="24.0" y="108" class="">2023 </text><path class="bar" d="M69.0 97h28.9a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4h-28.9z"/><text x="114.0" y="108" class="">3,321</text><text x="168.0" y="108" class="muted">(14%)</text></g>
-<g class="row" style="--delay:1.35s"><text x="24.0" y="130" class="">2024 </text><path class="bar" d="M69.0 119h100.6a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4h-100.6z"/><text x="186.0" y="130" class="">10,567</text><text x="249.0" y="130" class="muted">(31%)</text></g>
-<g class="row" style="--delay:1.4s"><text x="24.0" y="152" class="">2025 </text><path class="bar" d="M69.0 141h180.7a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4h-180.7z"/><text x="267.0" y="152" class="">18,647</text><text x="330.0" y="152" class="muted">(41%)</text></g>
-<g class="row" style="--delay:1.45s"><text x="24.0" y="174" class="">2026 </text><path class="bar" d="M69.0 163h266.0a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4h-266.0z"/><text x="348.0" y="174" class="">27,266</text><text x="411.0" y="174" class="muted">(47%)</text><text x="465.0" y="174" class="muted">so far</text></g>
+<g class="row" style="--delay:1.3s"><text x="24.0" y="108" class="">2023 </text><path class="bar" d="M69.0 97h28.7a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4h-28.7z"/><text x="114.0" y="108" class="">3,321</text><text x="168.0" y="108" class="muted">(14%)</text></g>
+<g class="row" style="--delay:1.35s"><text x="24.0" y="130" class="">2024 </text><path class="bar" d="M69.0 119h100.2a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4h-100.2z"/><text x="186.0" y="130" class="">10,567</text><text x="249.0" y="130" class="muted">(31%)</text></g>
+<g class="row" style="--delay:1.4s"><text x="24.0" y="152" class="">2025 </text><path class="bar" d="M69.0 141h179.8a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4h-179.8z"/><text x="267.0" y="152" class="">18,647</text><text x="330.0" y="152" class="muted">(41%)</text></g>
+<g class="row" style="--delay:1.45s"><text x="24.0" y="174" class="">2026 </text><path class="bar" d="M69.0 163h266.0a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4h-266.0z"/><text x="348.0" y="174" class="">27,391</text><text x="411.0" y="174" class="muted">(47%)</text><text x="465.0" y="174" class="muted">so far</text></g>
 <g class="row" style="--delay:1.5s"><text x="24.0" y="196" class="muted">Counted by the year each pull request was opened.</text></g>
 </g>
 <rect x=".5" y=".5" width="579" height="217" rx="10" fill="none" stroke="#c8ccdb"/>
