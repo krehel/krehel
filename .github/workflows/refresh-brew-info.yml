@@ -16,7 +16,7 @@ jobs:
     name: Refresh stats
     runs-on: ubuntu-latest
     permissions:
-      contents: write # pushes the regenerated cards to main
+      contents: write # replaces the cards branch
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -24,10 +24,13 @@ jobs:
       - run: bin/render-brew-info
         env:
           GH_TOKEN: ${{ github.token }}
-      - name: Commit changed stats
+      # The cards branch is a single commit replaced every night, so the 2.4 MB
+      # of portraits never builds up in the history.
+      - name: Publish cards
         run: |
-          git diff --quiet -- assets && exit
+          export GIT_INDEX_FILE="$RUNNER_TEMP/cards-index"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit --message="Refresh brew info stats" -- assets
-          git push
+          git add --force -- assets/*.svg
+          cards=$(git commit-tree "$(git write-tree)" -m "Refresh brew info cards")
+          git push --force origin "$cards:refs/heads/cards"

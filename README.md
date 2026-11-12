@@ -1,11 +1,11 @@
 <div align="center">
   <a href="https://github.com/Homebrew/homebrew-cask/pulls?q=is%3Apr+reviewed-by%3Akrehel">
     <picture>
-      <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/krehel/krehel/main/assets/portrait-still-dark.svg">
-      <source media="(prefers-reduced-motion: reduce)" srcset="https://raw.githubusercontent.com/krehel/krehel/main/assets/portrait-still-light.svg">
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/krehel/krehel/main/assets/portrait-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/krehel/krehel/main/assets/portrait-light.svg">
-      <img alt="A disc of tiny amber dots, one for each Homebrew pull request reviewed, in a ring for each year since 2023." src="https://raw.githubusercontent.com/krehel/krehel/main/assets/portrait-light.svg" width="600">
+      <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/krehel/krehel/cards/assets/portrait-still-dark.svg">
+      <source media="(prefers-reduced-motion: reduce)" srcset="https://raw.githubusercontent.com/krehel/krehel/cards/assets/portrait-still-light.svg">
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/krehel/krehel/cards/assets/portrait-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/krehel/krehel/cards/assets/portrait-light.svg">
+      <img alt="A disc of tiny amber dots, one for each Homebrew pull request reviewed, in a ring for each year since 2023." src="https://raw.githubusercontent.com/krehel/krehel/cards/assets/portrait-light.svg" width="600">
     </picture>
   </a>
 </div>
@@ -26,9 +26,9 @@
 <div align="center">
   <a href="https://brew.sh">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/krehel/krehel/main/assets/brew-info-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/krehel/krehel/main/assets/brew-info-light.svg">
-      <img alt="A terminal running brew info krehel: Justin Krehel, Lead Maintainer of Homebrew, with merged pull request and review counts." src="https://raw.githubusercontent.com/krehel/krehel/main/assets/brew-info-light.svg" width="580">
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/krehel/krehel/cards/assets/brew-info-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/krehel/krehel/cards/assets/brew-info-light.svg">
+      <img alt="A terminal running brew info krehel: Justin Krehel, Lead Maintainer of Homebrew, with merged pull request and review counts." src="https://raw.githubusercontent.com/krehel/krehel/cards/assets/brew-info-light.svg" width="580">
     </picture>
   </a>
 </div>
@@ -40,9 +40,9 @@ Reviewing is now most of what I do.
 <div align="center">
   <a href="https://github.com/Homebrew/homebrew-cask/pulls?q=is%3Apr+reviewed-by%3Akrehel">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/krehel/krehel/main/assets/brew-analytics-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/krehel/krehel/main/assets/brew-analytics-light.svg">
-      <img alt="Bar chart of Homebrew pull requests reviewed each year, rising every year since 2023." src="https://raw.githubusercontent.com/krehel/krehel/main/assets/brew-analytics-light.svg" width="580">
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/krehel/krehel/cards/assets/brew-analytics-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/krehel/krehel/cards/assets/brew-analytics-light.svg">
+      <img alt="Bar chart of Homebrew pull requests reviewed each year, rising every year since 2023." src="https://raw.githubusercontent.com/krehel/krehel/cards/assets/brew-analytics-light.svg" width="580">
     </picture>
   </a>
 </div>

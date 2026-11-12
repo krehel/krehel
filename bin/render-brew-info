@@ -275,16 +275,12 @@ def portrait_cards(history, theme, colours)
   ]
 end
 
-# Each portrait is around 600 KB, so refreshing it only on the first of each
-# month keeps the repository small.
-portrait_due = ARGV.include?("--portrait") || Date.today.day == 1
-
 numbers = stats
 cards = THEMES.flat_map do |theme, colours|
   [
     ["brew-info-#{theme}", render_window(INFO_COMMAND, info_rows(numbers), colours, cursor: true)],
     ["brew-analytics-#{theme}", render_window(ANALYTICS_COMMAND, analytics_rows(numbers.fetch(:history)), colours)],
-    *(portrait_due ? portrait_cards(numbers.fetch(:history), theme, colours) : []),
+    *portrait_cards(numbers.fetch(:history), theme, colours),
   ]
 end
 cards.each { |name, svg| File.write(File.join(ROOT, "assets/#{name}.svg"), svg) }
